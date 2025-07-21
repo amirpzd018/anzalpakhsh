@@ -1,0 +1,122 @@
+// فروشگاه Anzal Pakhsh - نسخه اولیه با پنل مدیریت
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+
+const mockProducts = [
+  {
+    id: 1,
+    name: "گارد سیلیکونی آیفون",
+    price: 150000,
+    image: "https://via.placeholder.com/300x300?text=Case",
+  },
+  {
+    id: 2,
+    name: "شارژر فست سامسونگ",
+    price: 320000,
+    image: "https://via.placeholder.com/300x300?text=Charger",
+  },
+];
+
+export default function Store() {
+  const [cart, setCart] = useState([]);
+  const [products, setProducts] = useState(mockProducts);
+  const [adminMode, setAdminMode] = useState(false);
+  const [newProduct, setNewProduct] = useState({ name: "", price: "", image: "" });
+
+  const addToCart = (product) => {
+    setCart([...cart, product]);
+  };
+
+  const addProduct = () => {
+    setProducts([
+      ...products,
+      {
+        id: products.length + 1,
+        name: newProduct.name,
+        price: Number(newProduct.price),
+        image: newProduct.image || "https://via.placeholder.com/300x300",
+      },
+    ]);
+    setNewProduct({ name: "", price: "", image: "" });
+  };
+
+  const total = cart.reduce((acc, item) => acc + item.price, 0);
+
+  return (
+    <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white p-4">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Anzal Pakhsh</h1>
+        <Button onClick={() => setAdminMode(!adminMode)}>
+          {adminMode ? "خروج از پنل مدیریت" : "ورود به پنل مدیریت"}
+        </Button>
+      </div>
+
+      {adminMode ? (
+        <div className="bg-gray-100 dark:bg-zinc-800 p-4 rounded-xl">
+          <h2 className="text-xl font-bold mb-4">افزودن محصول جدید</h2>
+          <div className="grid gap-2 grid-cols-1 md:grid-cols-3">
+            <Input
+              placeholder="نام محصول"
+              value={newProduct.name}
+              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+            />
+            <Input
+              placeholder="قیمت"
+              value={newProduct.price}
+              onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+              type="number"
+            />
+            <Input
+              placeholder="لینک تصویر"
+              value={newProduct.image}
+              onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
+            />
+            <Button className="col-span-1 md:col-span-3" onClick={addProduct}>
+              افزودن محصول
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {products.map((product) => (
+              <Card key={product.id} className="bg-zinc-100 dark:bg-zinc-900">
+                <CardContent className="p-4">
+                  <img src={product.image} alt={product.name} className="w-full h-48 object-cover rounded" />
+                  <h3 className="text-lg font-semibold mt-2">{product.name}</h3>
+                  <p className="text-sm text-gray-500">{product.price.toLocaleString()} تومان</p>
+                  <Button className="mt-2 w-full" onClick={() => addToCart(product)}>
+                    افزودن به سبد خرید
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold mb-2">سبد خرید</h2>
+            {cart.length === 0 ? (
+              <p>سبد خرید خالی است.</p>
+            ) : (
+              <ul className="space-y-2">
+                {cart.map((item, i) => (
+                  <li key={i} className="flex justify-between">
+                    <span>{item.name}</span>
+                    <span>{item.price.toLocaleString()} تومان</span>
+                  </li>
+                ))}
+                <li className="font-bold flex justify-between border-t pt-2">
+                  <span>مجموع</span>
+                  <span>{total.toLocaleString()} تومان</span>
+                </li>
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
